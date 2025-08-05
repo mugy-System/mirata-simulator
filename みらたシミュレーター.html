@@ -1,0 +1,66 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>みらた運用シミュレーター</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        h1 { color: #007bff; }
+        label, input { display: block; margin-bottom: 10px; width: 100%; max-width: 300px; }
+        input[type="number"] { padding: 5px; }
+        button { padding: 10px 20px; margin-right: 10px; margin-top: 10px; }
+        table { border-collapse: collapse; width: 100%; max-width: 500px; margin-top: 20px; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: right; }
+        th { background-color: #f2f2f2; }
+        @media (max-width: 600px) {
+            label, input, button, table { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <h1>みらた運用シミュレーター</h1>
+    <form id="simForm">
+        <label>元本（円）：<input type="number" id="principal" value="0" /></label>
+        <label>変額部分の割合（％）：<input type="number" id="variableRate" value="0" /></label>
+        <label>年利（％）：<input type="number" id="interestRate" value="0" /></label>
+        <label>運用年数（年）：<input type="number" id="years" value="0" /></label>
+        <button type="button" onclick="calculate()">計算する</button>
+        <button type="button" onclick="resetForm()">リセット</button>
+    </form>
+
+    <div id="resultArea"></div>
+
+    <script>
+        function calculate() {
+            const principal = parseFloat(document.getElementById('principal').value) || 0;
+            const variableRate = parseFloat(document.getElementById('variableRate').value) / 100 || 0;
+            const interestRate = parseFloat(document.getElementById('interestRate').value) / 100 || 0;
+            const years = parseInt(document.getElementById('years').value) || 0;
+
+            const variablePrincipal = principal * variableRate;
+            let remaining = variablePrincipal;
+            let output = "<h2>シミュレーション結果</h2>";
+            output += "<table><tr><th>年</th><th>引出額（円）</th><th>残高（円）</th></tr>";
+
+            for (let i = 1; i <= years; i++) {
+                const withdrawal = remaining * (1 + interestRate) / (years - i + 1);
+                remaining = remaining * (1 + interestRate) - withdrawal;
+                output += `<tr><td>${i}</td><td>${Math.floor(withdrawal).toLocaleString()}</td><td>${Math.floor(remaining).toLocaleString()}</td></tr>`;
+            }
+
+            output += "</table>";
+            document.getElementById("resultArea").innerHTML = output;
+        }
+
+        function resetForm() {
+            document.getElementById("principal").value = 0;
+            document.getElementById("variableRate").value = 0;
+            document.getElementById("interestRate").value = 0;
+            document.getElementById("years").value = 0;
+            document.getElementById("resultArea").innerHTML = "";
+        }
+    </script>
+</body>
+</html>
